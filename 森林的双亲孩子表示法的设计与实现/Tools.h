@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TOOLS_H
+#define TOOLS_H
 #include <iostream>
 #include <string>
 #include <stack>
@@ -19,22 +20,50 @@ namespace Wy
 
 }
 
-namespace Ly
+namespace Liuyuan
 {
+	using std::cin;
+	using std::cout;
+	using std::endl;
+	using std::string;
+
 	class Tools
 	{
 	public:
-		template<class T>
-		T getData();
+		static void Fflush();
+		template<class T> static T getData();
+		static string getLine();
 	};
 
+	inline void Tools::Fflush()
+	{
+		cin.clear();
+		cin.ignore(1024, '\n');
+	}
+
 	template<class T>
-	inline T Tools::getData()
+	static inline T Tools::getData()
 	{
 		T temp;
-		std::cin >> temp;
-		return T();
+		cout << "Input a value: ";
+		while (cin >> temp, cin.fail())
+		{
+			cout << "Input invalid value, input again: ";
+			Fflush();
+		}
+		Fflush();
+		return temp;
+	}
+
+	inline string Tools::getLine()
+	{
+		string temp;
+		cout << "Input a line: ";
+		std::getline(cin, temp);
+		cin.clear();
+		return temp;
 	}
 }
 
 
+#endif
