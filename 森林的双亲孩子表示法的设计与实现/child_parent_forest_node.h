@@ -25,7 +25,7 @@ ChildParentForestNode<ElemType>::ChildParentForestNode()
 }
 
 template<class ElemType>
-ChildParentForestNode<ElemType>::ChildParentForestNode(ElemType item, int pt, ChildParentForestNode<int>* childlk)
+ChildParentForestNode<ElemType>::ChildParentForestNode(ElemType item, int pt, Node<int>* childlk)
 // 操作结果：构造一个数据域为item和双亲域为pt的结点
 {
 	data = item;					// 数据元素值
