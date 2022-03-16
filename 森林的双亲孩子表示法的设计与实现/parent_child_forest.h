@@ -1,12 +1,13 @@
 #pragma once
 #include"Node.h"
+#include"child_parent_forest_node.h"
 #include"Assistance.h"
 template<class ElemType>
 class ParentChildForest
 {
 protected:
 	// 森林的数据成员
-	ParentChildForestNode<ElemType>* nodes;			                // 存储森林结点
+	ChildParentForestNode<ElemType>* nodes;			                // 存储森林结点
 	int maxSize;									// 树结点最大个数 
 	int *root, num;									// 根指针及结点数
 
@@ -34,8 +35,8 @@ template<class ElemType>
 ParentChildForest<ElemType>::ParentChildForest()
 {
 	maxSize = DEFAULT_SIZE;								// 树结点最大个数
-	nodes = new ChildParentTreeNode<ElemType>[maxSize];	// 分配存储空间
-	root = -1;											// 表示不存在根
+	nodes = new ChildParentForestNode<ElemType>[maxSize];	// 分配存储空间
+	root = NULL;											// 表示不存在根
 	num = 0;											// 空森的结点个数为0
 }
 
@@ -142,30 +143,30 @@ ParentChildForest<ElemType>::ParentChildForest(ElemType items[], int parents[], 
 	maxSize = size;													// 最大结点个数
 	if (n > maxSize)
 		throw Error("结点个数太多!");
-	nodes = new ChildParentTreeNode<ElemType>[maxSize];				// 分配存储空间
+	nodes = new ChildParentForestNode<ElemType>[maxSize];				// 分配存储空间
 
 	int i;
-	for (i = 0; item[i] != NULL; i++) {            //全部存放到结点数组内
-		a[i + 1].data = item[i];
-		a[i + 1].parent = parents[i];
-		a[i + 1].firstChild = NULL;
+	for (i = 0; items[i] != NULL; i++) {            //全部存放到结点数组内
+		nodes[i + 1].data = items[i];
+		nodes[i + 1].parent = parents[i];
+		nodes[i + 1].firstChild = NULL;
 	}
-	a[0].parent = -1;
-	num = Num;
-	a[0].data = a[2].data;
-	*root = a[0];
+	nodes[0].parent = -1;
+	num = size;
+	nodes[0].data = nodes[2].data;
+	*root = nodes[0];
 	for (i = 1; i <= num; i++) {            //构造各个结点的孩子的单链表
-		Child<ElemType>* p, * q;
-		q = new Child<ElemType>(i, NULL);
-		if (a[a[i].parent].firstChild == NULL) {
-			a[a[i].parent].firstChild = q;
+		ChildParentForestNode<ElemType>* p, * q;
+		q = new ChildParentForestNode<ElemType>(i, NULL);
+		if (nodes[nodes[i].parent].firstChild == NULL) {
+			nodes[nodes[i].parent].firstChild = q;
 		}
 		else {
-			for (p = a[a[i].parent].firstChild; p->next != NULL; p = p->next) {}
+			for (p = nodes[nodes[i].parent].firstChild; p->next != NULL; p = p->next) {}
 			p->next = q;
 		}
 	}
-	root->firstChild = a[0].firstChild;
+	root->firstChild = nodes[0].firstChild;
 }
 
 template<class ElemType>
@@ -173,13 +174,13 @@ void ParentChildForest<ElemType>::Show()
 {
 	for (int i = 0; i <= num; i++) {
 		std::cout << i;
-		std::cout << "( " << a[i].data << ", " << a[i].parent << ", ";
-		ParentChildForestNode<ElemType>* p;
-		if (a[i].firstChild == NULL) {
+		std::cout << "( " << nodes[i].data << ", " << nodes[i].parent << ", ";
+		ChildParentForestNode<ElemType>* p;
+		if (nodes[i].firstChild == NULL) {
 			std::cout << "^)" << endl;
 		}
 		else {
-			p = a[i].firstChild;
+			p = nodes[i].firstChild;
 			while (p) {
 				std::cout << " )->( " << p->data << ", ";
 				p = p->next;
