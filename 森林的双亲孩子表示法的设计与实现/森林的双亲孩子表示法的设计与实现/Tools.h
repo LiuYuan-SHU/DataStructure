@@ -6,10 +6,17 @@
 
 namespace Wy
 {
-class Tools
-{
+	class Tools
+	{
+	public:
+		void LY_is_too_strong();
+	};
 
-};
+	void Wy::Tools::LY_is_too_strong()
+	{
+		std::cout << "ÁõÔªºÜÇ¿" << std::endl;
+	}
+
 }
 
 namespace Ly
