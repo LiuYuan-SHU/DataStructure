@@ -30,8 +30,11 @@ namespace Liuyuan
 	class Tools
 	{
 	public:
+		//fflush cin istream
 		static void Fflush();
+		//get a value of specific kind
 		template<class T> static T getData();
+		//get a line of string
 		static string getLine();
 	};
 
