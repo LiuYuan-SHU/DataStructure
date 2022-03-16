@@ -10,7 +10,7 @@ struct ParentChildForestNode
 
 // 构造函数:
 	ParentChildForestNode();						// 无参数的构造函数
-	ParentChildForestNode(ElemType item, Node<ElemType>* link = NULL);	// 已知数数据元素值和指针建立结构
+	ParentChildForestNode(ElemType item, ParentChildForestNode<ElemType>* link = NULL);	// 已知数数据元素值和指针建立结构
 };
 
 // 结点类的实现部分
@@ -22,7 +22,7 @@ ParentChildForestNode<ElemType>::ParentChildForestNode()
 }
 
 template<class ElemType>
-ParentChildForestNode<ElemType>::ParentChildForestNode(ElemType item, Node<ElemType>* link)
+ParentChildForestNode<ElemType>::ParentChildForestNode(ElemType item, ParentChildForestNode<ElemType>* link)
 // 操作结果：构造一个数据域为item和指针域为link的结点
 {
 	data = item;
