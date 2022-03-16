@@ -27,6 +27,7 @@ public:
 	int RightSibling(int cur) const;				// 返回结点cur的右兄弟
 	int Parent(int cur) const;
 	ParentChildForest(ElemType items[], int parents[], int r, int n, int size);
+	void Show();
 };
 
 template<class ElemType>
@@ -165,4 +166,25 @@ ParentChildForest<ElemType>::ParentChildForest(ElemType items[], int parents[], 
 		}
 	}
 	root->firstChild = a[0].firstChild;
+}
+
+template<class ElemType>
+void ParentChildForest<ElemType>::Show()
+{
+	for (int i = 0; i <= num; i++) {
+		cout << i;
+		cout << "( " << a[i].data << ", " << a[i].parent << ", ";
+		Child<ElemType>* p;
+		if (a[i].firstChild == NULL) {
+			cout << "^)" << endl;
+		}
+		else {
+			p = a[i].firstChild;
+			while (p) {
+				cout << " )->( " << p->data << ", ";
+				p = p->next;
+			}
+			cout << "^)" << endl;
+		}
+	}
 }
