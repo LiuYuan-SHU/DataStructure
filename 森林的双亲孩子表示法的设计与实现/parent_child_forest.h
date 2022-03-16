@@ -22,6 +22,11 @@ public:
 	bool Empty() const;								// 判断森林是否为空
 	Status GetElem(int cur, ElemType& e) const;		// 用e返回结点元素值
 	Status SetElem(int cur, const ElemType& e);		// 将结cur的值置为e
+	int NodeCount() const;
+	int FirstChild(int cur) const;					// 返回结点cur的第一个孩子
+	int RightSibling(int cur) const;				// 返回结点cur的右兄弟
+	int Parent(int cur) const;
+	ParentChildForest(ElemType items[], int parents[], int r, int n, int size);
 };
 
 template<class ElemType>
@@ -78,4 +83,86 @@ Status ParentChildForest<ElemType>::SetElem(int cur, const ElemType& e)
 		nodes[cur].data = e;		// 将结点cur的值设置为e
 		return SUCCESS;	  		    // 返回SUCCESS
 	}
+}
+
+template <class ElemType>
+int ParentChildForest<ElemType>::NodeCount() const
+// 操作结果：返回森林的结点个数
+{
+	return num;
+}
+
+template <class ElemType>
+int ParentChildForest<ElemType>::FirstChild(int cur) const
+// 操作结果：如cur无孩子,则返回-1,否则返回树结点cur的第一个孩子,
+{
+	Node<int>* p;
+	if (cur < 0 || cur >= num)
+		return -1;						// 结点cur不存在,返回-1表示无孩子
+
+	if (nodes[cur].childLkList == NULL)	// 无孩子
+		return -1;
+	else
+		return nodes[cur].childLkList->data;	// 取出第一个孩子
+}
+
+template <class ElemType>
+int ParentChildForest<ElemType>::RightSibling(int cur) const
+// 操作结果：如果结点cur无右兄弟,则返回-1,否则返回cur的右兄弟
+{
+	if (cur < 0 || cur >= num)
+		return -1;						// 结点cur不存在,返回-1表示无孩子
+
+	int pt = nodes[cur].parent;			// cur的双亲
+	Node<int>* p = nodes[pt].childLkList;
+	while (p != NULL && p->data != cur)
+		p = p->next;
+	if (p == NULL || p->next == NULL)
+		return -1;				// 反回右兄弟
+	else
+		return p->next->data;	// 表示无右兄弟
+}
+
+template <class ElemType>
+int ParentChildForest<ElemType>::Parent(int cur) const
+// 操作结果：返回树结点cur的双亲
+{
+	if (cur < 0 || cur >= num)
+		return -1;						// 结点cur不存在,返回-1表示无双亲
+	return nodes[cur].parent;
+}
+
+
+//还在修改//
+template <class ElemType>
+ParentChildForest<ElemType>::ParentChildForest(ElemType items[], int parents[], int r, int n, int size)
+// 操作结果：建立数据元素为items[],对应结点双亲为parents[],根结点位置为r,结点个数为n的树
+{	
+	maxSize = size;													// 最大结点个数
+	if (n > maxSize)
+		throw Error("结点个数太多!");
+	nodes = new ChildParentTreeNode<ElemType>[maxSize];				// 分配存储空间
+
+	int i;
+	for (i = 0; item[i] != NULL; i++) {            //全部存放到结点数组内
+		a[i + 1].data = item[i];
+		a[i + 1].parent = parents[i];
+		a[i + 1].firstChild = NULL;
+	}
+	a[0].parent = -1;
+	num = Num;
+	a[0].data = a[2].data;
+	*root = a[0];
+	for (i = 1; i <= num; i++) {            //构造各个结点的孩子的单链表
+		Child<ElemType>* p, * q;
+		q = new Child<ElemType>(i, NULL);
+		if (a[a[i].parent].firstChild == NULL) {
+			a[a[i].parent].firstChild = q;
+		}
+		else {
+			for (p = a[a[i].parent].firstChild; p->next != NULL; p = p->next) {}
+			p->next = q;
+		}
+	}
+	root->firstChild = a[0].firstChild;
 }
