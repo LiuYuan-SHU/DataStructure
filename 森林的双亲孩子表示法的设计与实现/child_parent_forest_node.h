@@ -1,4 +1,5 @@
 #pragma once
+#include"Assistance.h"
 #include"node.h"
 
 // 孩子双法表示森林结点类
@@ -6,6 +7,7 @@ template <class ElemType>
 struct ChildParentForestNode
 {
 	// 数据成员:
+	string Tag;						//标记自己是否为树根
 	ElemType data;					// 数据域
 	Node<int>* childLkList;		    // 孩子链表	
 	int parent;						// 双亲位置域
@@ -19,7 +21,8 @@ struct ChildParentForestNode
 template<class ElemType>
 ChildParentForestNode<ElemType>::ChildParentForestNode()
 // 操作结果：构造双亲域为-1的结点
-{
+{	
+	Tag = "UROOT";
 	parent = -1;
 	childLkList = NULL;
 }

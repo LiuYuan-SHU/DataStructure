@@ -7,18 +7,19 @@ class ParentChildForest
 {
 protected:
 	// 森林的数据成员
-	ChildParentForestNode<ElemType>* nodes;			                // 存储森林结点
-	int maxSize;									// 树结点最大个数 
-	int *root, num;									// 根指针及结点数
+	ChildParentForestNode<ElemType>* nodes;       //存放森林中所有结点
+	int num_of_tree;                      //森林中树的数目
+	int num;                             //森林总结点个数
+	int maxSize;                       //森林结点最大数
 
 	//	辅助函数:
 	void PreRootOrderHelp(int r, void (*Visit)(const ElemType&)) const;	  // 先根序遍历
 	void PostRootOrderHelp(int r, void (*Visit)(const ElemType&)) const;  //后根序遍历
-	int HeightHelp(int r) const;					// 返回以r为根的高
-	int DegreeHelp(int r) const;					// 返回以r为根的树的度
-
+	int HeightHelp(int r) const;					// 返回以r为根的树的度
+	
 public:
 	ParentChildForest();							// 无参构造函数
+	ParentChildForest(ElemType items[], int parents[],int n, int size= DEFAULT_SIZE);
 	virtual ~ParentChildForest();					// 析构函数
 	bool Empty() const;								// 判断森林是否为空
 	Status GetElem(int cur, ElemType& e) const;		// 用e返回结点元素值
@@ -27,16 +28,17 @@ public:
 	int FirstChild(int cur) const;					// 返回结点cur的第一个孩子
 	int RightSibling(int cur) const;				// 返回结点cur的右兄弟
 	int Parent(int cur) const;
-	ParentChildForest(ElemType items[], int parents[], int r, int n, int size);
 	void Show();
+	int getTreeNum();								//获取树的棵树
 };
+
 
 template<class ElemType>
 ParentChildForest<ElemType>::ParentChildForest()
 {
 	maxSize = DEFAULT_SIZE;								// 树结点最大个数
 	nodes = new ChildParentForestNode<ElemType>[maxSize];	// 分配存储空间
-	root = NULL;											// 表示不存在根
+	//root = NULL;			
 	num = 0;											// 空森的结点个数为0
 }
 
@@ -137,50 +139,58 @@ int ParentChildForest<ElemType>::Parent(int cur) const
 
 //还在修改//
 template <class ElemType>
-ParentChildForest<ElemType>::ParentChildForest(ElemType items[], int parents[], int r, int n, int size)
+ParentChildForest<ElemType>::ParentChildForest(ElemType items[], int parents[], int n, int size)
 // 操作结果：建立数据元素为items[],对应结点双亲为parents[],根结点位置为r,结点个数为n的 森林
 {	
+	num_of_tree = 0;
 	maxSize = size;													// 最大结点个数
-	if (n > maxSize)
-		throw Error("结点个数太多!");
-	nodes = new ChildParentForestNode<ElemType>[maxSize];				// 分配存储空间
+	num = n;														// 结点个数
 
-	int i;
-	for (i = 0; items[i] != NULL; i++) {            //全部存放到结点数组内
-		nodes[i + 1].data = items[i];
-		nodes[i + 1].parent = parents[i];
-		nodes[i + 1].firstChild = NULL;
-	}
-	nodes[0].parent = -1;
-	num = size;
-	nodes[0].data = nodes[2].data;
-	*root = nodes[0];
-	for (i = 1; i <= num; i++) {            //构造各个结点的孩子的单链表
-		ChildParentForestNode<ElemType>* p, * q;
-		q = new ChildParentForestNode<ElemType>(i, NULL);
-		if (nodes[nodes[i].parent].firstChild == NULL) {
-			nodes[nodes[i].parent].firstChild = q;
+	if (n > maxSize)
+		throw Error("结点个数太多!");								    // 抛出异常
+
+	nodes = new ChildParentForestNode<ElemType>[maxSize];		    // 分配存储空间
+	for (int pos = 0; pos < n; pos++)
+	{	// 依次对结点数据元素及双亲位置进行赋值
+		nodes[pos].data = items[pos];								// 数据元素值
+		nodes[pos].parent = parents[pos];							// 双亲位置
+		nodes[pos].childLkList = NULL;
+
+		if (parents[pos] < 0) {			         //计算根节点个数 获得树的数量
+			num_of_tree++;
+			nodes[pos].Tag = "ROOT";		//将该森林结点设置为树根
 		}
-		else {
-			for (p = nodes[nodes[i].parent].firstChild; p->next != NULL; p = p->next) {}
-			p->next = q;
+			  
+
+		if (parents[pos] >= 0) {
+			nodes[pos].Tag = "UROOT";		//将该森林结点设置为非树根
+			Node<int>* p, * q;
+			q = new Node<int>(pos, NULL);
+			if (nodes[parents[pos]].childLkList == NULL)            //如果第一个孩子是空，则直接将q设置为第一个孩子
+				nodes[parents[pos]].childLkList = q; 
+			else {
+				for (p = nodes[parents[pos]].childLkList; p->next != NULL; p = p->next);  //寻找到尾部
+				p->next = q;										//添加下一个结点
+			}
 		}
 	}
-	root->firstChild = nodes[0].firstChild;
+
 }
 
 template<class ElemType>
-void ParentChildForest<ElemType>::Show()
-{
-	for (int i = 0; i <= num; i++) {
+void ParentChildForest<ElemType>::Show()  
+{	
+	std::cout <<"森林中树的棵树"<< num_of_tree << endl;
+	for (int i = 0; i < num; i++) {
 		std::cout << i;
+		std::cout << nodes[i].Tag;
 		std::cout << "( " << nodes[i].data << ", " << nodes[i].parent << ", ";
-		ChildParentForestNode<ElemType>* p;
-		if (nodes[i].firstChild == NULL) {
+		Node<int>* p;
+		if (nodes[i].childLkList == NULL) {
 			std::cout << "^)" << endl;
 		}
 		else {
-			p = nodes[i].firstChild;
+			p = nodes[i].childLkList;
 			while (p) {
 				std::cout << " )->( " << p->data << ", ";
 				p = p->next;
@@ -188,4 +198,10 @@ void ParentChildForest<ElemType>::Show()
 			std::cout << "^)" << endl;
 		}
 	}
+}
+
+template<class ElemType>
+inline int ParentChildForest<ElemType>::getTreeNum()
+{
+	return num_of_tree;
 }
