@@ -6,9 +6,9 @@ class ParentChildForest
 {
 protected:
 	// 森林的数据成员
-	ChildParentTreeNode<ElemType>* nodes;			// 存储森林结点
+	ParentChildForestNode<ElemType>* nodes;			                // 存储森林结点
 	int maxSize;									// 树结点最大个数 
-	int *root, num;									// 根的位置及结点数
+	int *root, num;									// 根指针及结点数
 
 	//	辅助函数:
 	void PreRootOrderHelp(int r, void (*Visit)(const ElemType&)) const;	  // 先根序遍历
@@ -137,7 +137,7 @@ int ParentChildForest<ElemType>::Parent(int cur) const
 //还在修改//
 template <class ElemType>
 ParentChildForest<ElemType>::ParentChildForest(ElemType items[], int parents[], int r, int n, int size)
-// 操作结果：建立数据元素为items[],对应结点双亲为parents[],根结点位置为r,结点个数为n的树
+// 操作结果：建立数据元素为items[],对应结点双亲为parents[],根结点位置为r,结点个数为n的 森林
 {	
 	maxSize = size;													// 最大结点个数
 	if (n > maxSize)
@@ -156,11 +156,11 @@ ParentChildForest<ElemType>::ParentChildForest(ElemType items[], int parents[], 
 	*root = a[0];
 	for (i = 1; i <= num; i++) {            //构造各个结点的孩子的单链表
 		Child<ElemType>* p, * q;
-		q = new Child<ElemType>(i, NULL);
-		if (a[a[i].parent].firstChild == NULL) {
+		q = new Child<ElemType>(i, NULL); 
+		if (a[a[i].parent].firstChild == NULL) {  //第一个孩子为空 添加第一个孩子
 			a[a[i].parent].firstChild = q;
 		}
-		else {
+		else {									  //第一个孩子不为空 添加后续孩子到链表当中		
 			for (p = a[a[i].parent].firstChild; p->next != NULL; p = p->next) {}
 			p->next = q;
 		}
