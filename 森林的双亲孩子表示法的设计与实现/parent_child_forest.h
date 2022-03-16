@@ -26,6 +26,7 @@ public:
 	int FirstChild(int cur) const;					// 返回结点cur的第一个孩子
 	int RightSibling(int cur) const;				// 返回结点cur的右兄弟
 	int Parent(int cur) const;
+	ParentChildForest(ElemType items[], int parents[], int r, int n, int size);
 };
 
 template<class ElemType>
@@ -132,6 +133,7 @@ int ParentChildForest<ElemType>::Parent(int cur) const
 }
 
 
+//还在修改//
 template <class ElemType>
 ParentChildForest<ElemType>::ParentChildForest(ElemType items[], int parents[], int r, int n, int size)
 // 操作结果：建立数据元素为items[],对应结点双亲为parents[],根结点位置为r,结点个数为n的树
