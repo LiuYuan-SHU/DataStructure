@@ -137,28 +137,32 @@ int ParentChildForest<ElemType>::Parent(int cur) const
 template <class ElemType>
 ParentChildForest<ElemType>::ParentChildForest(ElemType items[], int parents[], int r, int n, int size)
 // 操作结果：建立数据元素为items[],对应结点双亲为parents[],根结点位置为r,结点个数为n的树
-{
+{	
 	maxSize = size;													// 最大结点个数
 	if (n > maxSize)
-		throw Error("结点个数太多!");								// 抛出异常
+		throw Error("结点个数太多!");
 	nodes = new ChildParentTreeNode<ElemType>[maxSize];				// 分配存储空间
-	for (int pos = 0; pos < n; pos++)
-	{	// 依次对结点数据元素及双亲位置进行赋值
-		nodes[pos].data = items[pos];								// 数据元素值
-		nodes[pos].parent = parents[pos];							// 双亲位置
-		if (parents[pos] != -1) {
-			Node<int>* p, * newnode;
-			newnode = new Node<int>(pos, NULL);
-			if (nodes[parents[pos]].childLkList == NULL)
-				nodes[parents[pos]].childLkList = newnode;
-			else {
-				p = nodes[parents[pos]].childLkList;
-				while (p->next != NULL)
-					p = p->next;
-				p->next = newnode;
-			}
+
+	int i;
+	for (i = 0; item[i] != NULL; i++) {            //全部存放到结点数组内
+		a[i + 1].data = item[i];
+		a[i + 1].parent = parents[i];
+		a[i + 1].firstChild = NULL;
+	}
+	a[0].parent = -1;
+	num = Num;
+	a[0].data = a[2].data;
+	*root = a[0];
+	for (i = 1; i <= num; i++) {            //构造各个结点的孩子的单链表
+		Child<ElemType>* p, * q;
+		q = new Child<ElemType>(i, NULL);
+		if (a[a[i].parent].firstChild == NULL) {
+			a[a[i].parent].firstChild = q;
+		}
+		else {
+			for (p = a[a[i].parent].firstChild; p->next != NULL; p = p->next) {}
+			p->next = q;
 		}
 	}
-	root = r;														// 根
-	num = n;														// 结点个数
+	root->firstChild = a[0].firstChild;
 }
