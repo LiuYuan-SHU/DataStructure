@@ -35,3 +35,6 @@ ChildParentForestNode<ElemType>::ChildParentForestNode(ElemType item, int pt, No
 	parent = pt;					// Ë«Ç×
 	childLkList = childlk;
 }
+
+
+

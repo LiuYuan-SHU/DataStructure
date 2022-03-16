@@ -108,7 +108,7 @@ void Display(ElemType elem[], int n)
 }
 
 template <class ElemType>
-void Write(const ElemType &e)
+void Write(ElemType &e)
 // 操作结果: 显示数据元素
 {
     cout << e << "  ";

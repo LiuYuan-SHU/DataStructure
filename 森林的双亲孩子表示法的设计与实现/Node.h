@@ -29,3 +29,6 @@ Node<ElemType>::Node(ElemType item, Node<ElemType>* link)
 	data = item;
 	next = link;
 }
+
+
+
