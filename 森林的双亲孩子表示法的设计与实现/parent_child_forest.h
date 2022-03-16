@@ -156,11 +156,11 @@ ParentChildForest<ElemType>::ParentChildForest(ElemType items[], int parents[], 
 	*root = a[0];
 	for (i = 1; i <= num; i++) {            //构造各个结点的孩子的单链表
 		Child<ElemType>* p, * q;
-		q = new Child<ElemType>(i, NULL); 
-		if (a[a[i].parent].firstChild == NULL) {  //第一个孩子为空 添加第一个孩子
+		q = new Child<ElemType>(i, NULL);
+		if (a[a[i].parent].firstChild == NULL) {
 			a[a[i].parent].firstChild = q;
 		}
-		else {									  //第一个孩子不为空 添加后续孩子到链表当中		
+		else {
 			for (p = a[a[i].parent].firstChild; p->next != NULL; p = p->next) {}
 			p->next = q;
 		}
@@ -172,19 +172,19 @@ template<class ElemType>
 void ParentChildForest<ElemType>::Show()
 {
 	for (int i = 0; i <= num; i++) {
-		cout << i;
-		cout << "( " << a[i].data << ", " << a[i].parent << ", ";
-		Child<ElemType>* p;
+		std::cout << i;
+		std::cout << "( " << a[i].data << ", " << a[i].parent << ", ";
+		ParentChildForestNode<ElemType>* p;
 		if (a[i].firstChild == NULL) {
-			cout << "^)" << endl;
+			std::cout << "^)" << endl;
 		}
 		else {
 			p = a[i].firstChild;
 			while (p) {
-				cout << " )->( " << p->data << ", ";
+				std::cout << " )->( " << p->data << ", ";
 				p = p->next;
 			}
-			cout << "^)" << endl;
+			std::cout << "^)" << endl;
 		}
 	}
 }
