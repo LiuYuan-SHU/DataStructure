@@ -7,10 +7,10 @@ class ParentChildForest
 {
 protected:
 	// 森林的数据成员
-	ChildParentForestNode<ElemType>* nodes;       //存放森林中所有结点
-	int num_of_tree;                      //森林中树的数目
-	int num;                             //森林总结点个数
-	int maxSize;                       //森林结点最大数
+	ChildParentForestNode<ElemType>* nodes;			//存放森林中所有结点
+	int num_of_tree;								//森林中树的数目
+	int num;										//森林总结点个数
+	int maxSize;									//森林结点最大数
 
 	//	辅助函数:
 	void PreRootOrderHelp(int r, void (*Visit)(const ElemType&)) const;	  // 先根序遍历
