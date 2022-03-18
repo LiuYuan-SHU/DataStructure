@@ -1,14 +1,17 @@
 #pragma once
 #include"Node.h"
 #include"child_parent_forest_node.h"
+#include"child_sibling_tree.h"
 #include"LinkQueue.h"
 #include"Assistance.h"
+#include<vector>
 template<class ElemType>
 class ParentChildForest
 {
 protected:
 	// 森林的数据成员
 	ChildParentForestNode<ElemType>* nodes;       //存放森林中所有结点
+	vector<ElemType> rootpos;				//记录根节点位置
 	int num_of_tree;                      //森林中树的数目
 	int num;                             //森林总结点个数
 	int maxSize;                       //森林结点最大数
@@ -17,7 +20,7 @@ protected:
 	//	辅助函数:
 	void PreRootOrderHelp(int r) const;	  // 先根序遍历
 	void InorderRootOrderHelp(int r) const;	  // 中根序遍历
-	void PostRootOrderHelp(int r) const;  //后根序遍历
+	//void PostRootOrderHelp(int r) const;  //后根序遍历
 	int HeightHelp(int r) const;					// 返回以r为根的树的度
 	
 public:
@@ -179,9 +182,9 @@ ParentChildForest<ElemType>::ParentChildForest(ElemType items[], int parents[], 
 		if (parents[pos] < 0) {			         //计算根节点个数 获得树的数量
 			num_of_tree++;
 			nodes[pos].Tag = "ROOT";		//将该森林结点设置为树根
+			rootpos.push_back(pos);
 		}
 			  
-
 		if (parents[pos] >= 0) {
 			nodes[pos].Tag = "UROOT";		//将该森林结点设置为非树根
 			Node<int>* p, * q;
@@ -260,21 +263,6 @@ void ParentChildForest<ElemType>::InorderRootOrderHelp(int r) const
 }
 
 template<class ElemType>
-void ParentChildForest<ElemType>::PostRootOrderHelp(int r) const
-{
-	if (r < 0 || r > num)
-		return;
-	if (nodes[r].childLkList != NULL) PostRootOrderHelp(FirstChild(r));
-	PostRootOrderHelp(RightSibling(r));
-	std::cout << nodes[r].data;
-}
-
-
-
-
-
-
-template<class ElemType>
 void ParentChildForest<ElemType>::PreRootOrder()
 {	
 	LinkQueue<int> L;
@@ -306,17 +294,15 @@ inline void ParentChildForest<ElemType>::InorderRootOrder()
 
 template<class ElemType>
 void ParentChildForest<ElemType>::PostRootOrderOrder()
-{
-	LinkQueue<int> L;
+{	
+	vector<ElemType> elems;
+	vector<ElemType> parents;
 	for (int i = 0; i < num; i++) {
-		if (nodes[i].Tag == "ROOT")
-			L.EnQueue(i);
+		elems.push_back(nodes[i].data);
+		parents.push_back(nodes[i].parent);
 	}
-	int treeroot;
-	while (!L.IsEmpty()) {
-		L.DelQueue(treeroot);
-		PostRootOrderHelp(treeroot);
-	}
+	ChildSiblingTree<ElemType> Btree(elems, parents, rootpos, num);
+	Btree.PostRootOrder(Write<char>);
 }
 
 template<class ElemType>
