@@ -1,15 +1,15 @@
 #pragma once
 #include"Node.h"
 #include"child_parent_forest_node.h"
-#include"LinkQueue.h"
+//#include"LinkQueue.h"
 #include"Assistance.h"
 
-#include <stack>
-#include <queue>
-#include <algorithm>
-
-using std::stack;
-using std::queue;
+//#include <stack>
+//#include <queue>
+//#include <algorithm>
+//
+//using std::stack;
+//using std::queue;
 
 template<class ElemType>
 class ParentChildForest
@@ -51,9 +51,11 @@ public:
 	int getLeafNum();								// 获取叶子结点数量
 	template<class T>
 	friend ParentChildForest<T>* operator + (ParentChildForest<T>& t1, ParentChildForest<T>& t2); //森林相加
-	Status append(ChildParentForestNode<ElemType> new_node);
-	Status delnode(int pos);
+	Status append(ChildParentForestNode<ElemType> new_node);   // 添加结点
+	Status delnode(int pos);								   // 删除结点
+	Status delchild(int pos,int child_pos);					   // 删除孩子
 	Status Modifyparent(int pos, int parent);                  // 修改双亲
+	int MaxHeigth();										   //获得森林的最大高度	
 
 };
 
@@ -98,6 +100,7 @@ Status ParentChildForest<ElemType>::GetElem(int cur, ElemType& e) const
 {
 	if (cur < 0 || cur >= num)		// 不存在结点cur
 		return NOT_PRESENT;			// 返回NOT_PRESENT
+
 	else {	                        // 存在结点cur
 		e = nodes[cur].data;		// 用e返回元素值
 		return ENTRY_FOUND;			// 返回ENTRY_FOUND
@@ -188,8 +191,9 @@ ParentChildForest<ElemType>::ParentChildForest(ElemType items[], int parents[], 
 	num = n;														// 结点个数
 	first_root = r;													// 记录森林的第一树的根节点
 
-	if (n > maxSize)
+	if (n > maxSize) {
 		throw Error("结点个数太多!");								    // 抛出异常
+	}
 
 	nodes = new ChildParentForestNode<ElemType>[maxSize];		    // 分配存储空间
 	for (int pos = 0; pos < n; pos++)
@@ -221,11 +225,14 @@ ParentChildForest<ElemType>::ParentChildForest(ElemType items[], int parents[], 
 
 template<class ElemType>
 void ParentChildForest<ElemType>::Show()
-{
-	std::cout << "森林中树的棵树" << num_of_tree << endl;
+{	
+	cout << endl;
+	if (num == 0) cerr << "森林为空" << endl;
 	for (int i = 0; i < num; i++) {
-		std::cout << i;
-		std::cout << nodes[i].Tag;
+		std::cout <<setw(2)<< i<<" ";
+		if (nodes[i].Tag == "ROOT")
+			std::cout << setw(2) << nodes[i].Tag;
+		else cout << "    " ;
 		std::cout << "( " << nodes[i].data << ", " << nodes[i].parent << ", ";
 		Node<int>* p;
 		if (nodes[i].childLkList == NULL) {
@@ -289,34 +296,20 @@ void ParentChildForest<ElemType>::PostRootOrderHelp(int r) const
 		return;
 	if (nodes[r].childLkList != NULL) PostRootOrderHelp(FirstChild(r));
 	PostRootOrderHelp(RightSibling(r));
-	//if(nodes[r].Tag=="UROOT")
 	std::cout << nodes[r].data;
-
-	// Push The Root of Trees into the queue
-	/*Node<int>* list_rootOfTrees = nodes[r].childLkList;
-	while (list_rootOfTrees)
-	{
-		PostRootOrderHelp_childTree(list_rootOfTrees->data);
-		list_rootOfTrees = list_rootOfTrees->next;
-	}
-	std::cout << "-----" << std::endl;
-	list_rootOfTrees = nodes[r].childLkList;
-	while (list_rootOfTrees)
-	{
-		std::cout << nodes[list_rootOfTrees->data].data;
-		list_rootOfTrees = list_rootOfTrees->next;
-	}*/
 }
 
-//template<class ElemType>
-//inline void ParentChildForest<ElemType>::PostRootOrderHelp_childTree(int r) const
-//{
-//	if (r < 0 || r > num)
-//		return;
-//	if (nodes[r].childLkList != NULL) PostRootOrderHelp_childTree(FirstChild(r));
-//	PostRootOrderHelp_childTree(RightSibling(r));
-//	std::cout << nodes[r].data;
-//}
+template<class ElemType>
+inline int ParentChildForest<ElemType>::HeightHelp(int r) const
+{	
+	int maxHeight=0;					//最大高度
+	int temp = 0;
+	Node<int>* p;
+	for (p = nodes[r].childLkList; p != NULL; p = p->next) {
+		if ((temp = HeightHelp(p->data)) > maxHeight) maxHeight = temp;
+	}
+	return maxHeight+1;
+}
 
 template<class ElemType>
 void ParentChildForest<ElemType>::PreRootOrder()
@@ -333,17 +326,7 @@ inline void ParentChildForest<ElemType>::InorderRootOrder()
 template<class ElemType>
 void ParentChildForest<ElemType>::PostRootOrderOrder()
 {
-	//LinkQueue<int> L;
-	//for (int i = 0; i < num; i++) {
-	//	if (nodes[i].Tag == "ROOT")
-	//		L.EnQueue(i);
-	//}
-	//int treeroot;
-	//while (!L.IsEmpty()) {
-	//	L.DelQueue(treeroot);
-	//	PostRootOrderHelp(treeroot);
-	//}
-	PostRootOrderHelp(0);
+	PostRootOrderHelp(first_root);
 }
 
 template<class ElemType>
@@ -363,18 +346,23 @@ Status ParentChildForest<ElemType>::append(ChildParentForestNode<ElemType> new_n
 	ChildParentForestNode<ElemType>* temp = new ChildParentForestNode<ElemType>[maxSize + 1];
 	for (int i = 0; i < num; i++) {
 		temp[i] = nodes[i];
+		if (nodes[i].data == new_node.data) throw Error("已存在相同命名的结点");
 	}
 	temp[num] = new_node;
 	temp[num].Tag = "UROOT";
 	nodes = temp;
-	if (new_node.parent >= 0 && new_node.parent < maxSize) {
+	if (new_node.parent >= 0 && new_node.parent < num) {   //判断双亲是否存在 
 		int pn = new_node.parent;
 		Node<int>* p;
 		Node<int>* q = new Node<int>(num, NULL);
-		for (p = nodes[pn].childLkList; p->next != NULL; p = p->next);
-		p->next = q;
+		if (nodes[pn].childLkList == NULL) nodes[pn].childLkList = q;
+		else {
+			for (p = nodes[pn].childLkList; p->next != NULL; p = p->next);
+			p->next = q;
+		}
 		nodes[pn].Tag = "UROOT";
 	}
+	else throw Error("添加的结点双亲不存在");
 	num++;
 	return SUCCESS;
 }
@@ -385,6 +373,7 @@ Status ParentChildForest<ElemType>::delnode(int pos)
 	//将结点
 	ChildParentForestNode<ElemType>* temp = new ChildParentForestNode<ElemType>[maxSize];
 	if (num - 1 == pos) { num--; return SUCCESS; }
+	if (pos < 0 || pos >= num) throw Error("删除的坐标越界");
 	nodes[pos] = nodes[num];//把所有的pos孩子删除 通过双亲  把所有的num孩子换成pos
 
 	nodes[pos] = nodes[num - 1];
@@ -412,11 +401,29 @@ Status ParentChildForest<ElemType>::delnode(int pos)
 }
 
 template<class ElemType>
+inline Status ParentChildForest<ElemType>::delchild(int pos, int child_pos)
+{	
+	Node<int>* p;
+	Node<int>* q;
+	int count = 0;
+	if (nodes[pos].childLkList == NULL) throw Error("该结点无孩子");
+	for (p = nodes[pos].childLkList, q = p, count = 0; count < child_pos; q = p, p = p->next, count++) {
+		if (p == NULL) throw Error("孩子坐标越界");
+	};
+	nodes[p->data].parent = -1;//修改删除孩子的双亲
+	//Modifyparent(p->data,-1); 
+	q->next = p->next;
+	//至此 完成在结点中删除孩子的操作
+	return SUCCESS;
+}
+
+template<class ElemType>
 inline Status ParentChildForest<ElemType>::Modifyparent(int pos, int Parent)
 {
 	Node<int>* p;
 	Node<int>* q;
-	if (pos<0 || pos>num) throw Error("范围出错");
+	if (pos<0 || pos>=num) throw Error("定位结点坐标越界");
+	if (Parent <0 || Parent >=num) throw Error("定位双亲坐标越界");
 	if (nodes[pos].parent >= 0) {
 		for (p = nodes[nodes[pos].parent].childLkList, q = p; p != NULL; q = p, p = p->next) {  //减少孩子
 			if (p->data == pos) {
@@ -425,14 +432,29 @@ inline Status ParentChildForest<ElemType>::Modifyparent(int pos, int Parent)
 		}
 	}
 	nodes[pos].parent = Parent;
+	if (nodes[pos].Tag == "ROOT") nodes[pos].Tag = "UROOT";
 	Node<int>* new_node = new Node<int>(pos, NULL);       //增加孩子
 	if (nodes[Parent].childLkList == NULL) nodes[Parent].childLkList = new_node;
 	else {
 		for (p = nodes[Parent].childLkList; p->next != NULL; p = p->next);
 		p->next = new_node;
 	}
-
 	return SUCCESS;
+}
+
+template<class ElemType>
+int ParentChildForest<ElemType>::MaxHeigth()
+{	
+	int max=0;
+	int temp=0;
+	for (int i = 0; i < num; i++)
+	{
+		if (nodes[i].Tag == "ROOT")
+		{
+			if((temp= HeightHelp(i))>=max) max=temp;
+		}
+	}
+	return max;
 }
 
 
